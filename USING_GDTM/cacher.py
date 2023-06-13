@@ -149,8 +149,6 @@ class DataCacher(object):
         buff = {}
         # factor = 100 // self.fps 
         factor = 1
-        print("Warning: For new data factor has to be changed to 1! Did you do that?")
-        # factor = 1
         num_frames = 0
         keys = sorted(list(all_data.keys()))
         prev_num_objs = None

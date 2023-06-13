@@ -80,7 +80,7 @@ valid_mods=['mocap', 'zed_camera_left', 'zed_camera_depth',
 
 valid_nodes=[1,2,3]
 
-data_root = 'data/train'
+data_root = 'data'
 trainset=dict(type='HDF5Dataset',
     cacher_cfg=dict(type='DataCacher',
         hdf5_fnames=[
@@ -127,11 +127,11 @@ dataset.write_video(outputs=None, logdir='test', video_length=100)
 #seq has length 5
 for seq in data_loader:
     for batch in seq:
-        #img is B x 3 x H x W
+        #img is Batch x 3 x H x W
         print(batch.keys())
         img = batch[('zed_camera_left', 'node_1')]['img'].data[0]
         gt = batch[('mocap', 'mocap')]
 
-        #gt_pos is B x num_objs x 2 
+        #gt_pos is Batch x num_objs x 2 
         gt_pos = gt['gt_positions']
         import ipdb; ipdb.set_trace() # noqa
