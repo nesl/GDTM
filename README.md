@@ -1,4 +1,5 @@
 
+
 # GDTM
 Dataset Repository of NeurIPS 2023 Track on Datasets and Benchmarks Paper #207
 
@@ -11,26 +12,36 @@ One of the critical sensing tasks in indoor environments is geospatial tracking,
 ### External Links
 
 We will be hosting the dataset on IEEE Dataport under a CC-BY-4.0 license for public access. The public dataset repository will be ready before cameraready. We hereby provide **a Google Drive link to part of the dataset available for the reviewers** before the terabyte full dataset is available online.
+
 https://drive.google.com/drive/folders/1N0b8-o9iipR7m3sq7EnTHrk_fRR5eFug?usp=sharing
 
 We provide the dataset documentation and intended uses using the **dataset nutrition labels** framework in the following link:
+
 https://datanutrition.org/labels/v3/?id=0c819282-b39c-451f-aa8c-f2044bfacf21
 
+PDF to the scientific paper on the dataset: (Link to be updated, paper under review).
+
 To ensure the reproducibility of the results shown in this paper, we summarized the setup instructions, the link to pre-processed sample data, and the **code used to generate our results** in:
+
 https://github.com/nesl/GDTM-tracking
 
 A **demo video** of our baseline results is available at
+
 https://youtu.be/4EO5Z2IxO0o
 
 
 ### Internal Links
-[Further Information on the Raw Dataset](#"Dataset-(Raw)")
+[Further Information on the Raw Dataset](#"Raw-Dataset")
+
 [How to Pre-process GDTM Dataset](#Pre-processing-GDTM-Dataset)
+
 [How to Load Pre-processed GDTM for Your Own Work](#How-to-Use-Pre-processed-GDTM)
 
-## Dataset (Raw) 
+## Raw Dataset
 
-### Raw Dataset
+### Data Collection and Statistics
+
+### Data Hierachy
 
 ### Dataset Metadata
 
