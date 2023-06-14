@@ -11,7 +11,7 @@ One of the critical sensing tasks in indoor environments is geospatial tracking,
 
 ### External Links
 
--  **[DATA]** We will be hosting the dataset on IEEE Dataport under a CC-BY-4.0 license for public access. The public dataset repository will be ready before cameraready. We hereby provide **a Google Drive link to part of the dataset available for the reviewers** before the terabyte full dataset is available online.
+-  **[Data]** We will be hosting the dataset on IEEE Dataport under a CC-BY-4.0 license for public access. The public dataset repository will be ready before cameraready. We hereby provide **a Google Drive link to part of the dataset available for the reviewers** before the terabyte full dataset is available online.
 
 	https://drive.google.com/drive/folders/1N0b8-o9iipR7m3sq7EnTHrk_fRR5eFug?usp=sharing
 
@@ -147,7 +147,7 @@ Under each _dataN_ folder, there is a _metadata.json_ describing the metadata of
 
  - **Experiment Conditions**: there binary numbers indicates if (1) a red car is present in this experiment, (2) a green car is present in this experiment, and (3) if the experiment is conducted in good light conditions.
  - **Node pose**: for each node, there is a (1) $3\times1$ translation **$T_i$** vector describing the location of the node in the OptiTrack global coordinates (2) $9\times1$  vector (to be reshaped into a $3\times3$   rotation matrix **$R_i$**. **$R_i$** rotates a point in the global coordinate to a point in that node's local coordiante.
- - Node pose usage: Say we have an RC car's location at $p = [x, y, z]^T$ (in OptiTrack coordinate system). Then it's coordinate in node 1's local coordinate system is $ p_{local} = R_1 (p - T_1)$
+ - Node pose usage: Say we have an RC car's location at $p = [x, y, z]^T$ (in OptiTrack coordinate system). Then it's coordinate in node 1's local coordinate system is $p_{local} = R_1 (p - T_1)$
  - **Valid Range**: sometimes the experiment data may contain unwanted sections. For example, car stuck at a fixed location, a car stopped due to out-of-battery, or at the end of each session when the nodes had stopped collection but the OptiTrack were stilling running. To clip out these sections, we provide valid range as a list of tuples where each tuple ($T_s$, $T_e$) indicates the timestamp of the beginning and the end of *a meaningful section* in the data.
 
 We also aggreated all the .json files as a overall metadata for this dataset. It is included in this repository.
