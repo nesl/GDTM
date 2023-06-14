@@ -9,23 +9,23 @@ Dataset Repository of NeurIPS 2023 Track on Datasets and Benchmarks Paper #207
 ### Abstract
 One of the critical sensing tasks in indoor environments is geospatial tracking, i.e., constantly detecting and locating objects moving across a scene. Successful development of multimodal sensor fusion tracking algorithms relies on large multimodal datasets where common modalities exist and are time-aligned, and such datasets are not readily available. Moreover, some existing datasets either employs a single centralized sensor node or a set of sensors whose positions and orientations are fixed. Models developed on such datasets have difficulties generalizing to different sensor placements To fill these gaps, we propose GDTM, a nine-hour dataset for multimodal object tracking with distributed multimodal sensors and reconfigurable sensor node placements. This GTDM dataset enables the exploration of several research problems, including creating multimodal sensor fusion architectures robust to adverse sensing conditions and creating distributed object tracking systems robust to sensor placement variances.
 
-### External Links
+### External Links 
 
--  We will be hosting the dataset on IEEE Dataport under a CC-BY-4.0 license for public access. The public dataset repository will be ready before cameraready. We hereby provide **a Google Drive link to part of the dataset available for the reviewers** before the terabyte full dataset is available online.
+-  **[Data]** We will be hosting the dataset on IEEE Dataport under a CC-BY-4.0 license for public access. The public dataset repository will be ready before cameraready, as it takes a lot of time to upload terabytes of data online. We hereby provide **a Google Drive link to part of the dataset available for the reviewers** before the terabyte full dataset is available online.
 
 	https://drive.google.com/drive/folders/1N0b8-o9iipR7m3sq7EnTHrk_fRR5eFug?usp=sharing
 
--  We provide the dataset documentation and intended uses using the **dataset nutrition labels** framework in the following link:
+-  **[Nutrition Label]** We provide the dataset documentation and intended uses using the **dataset nutrition labels** framework in the following link:
 
 	https://datanutrition.org/labels/v3/?id=0c819282-b39c-451f-aa8c-f2044bfacf21
 
--  PDF to the scientific paper on the dataset: (Link to be updated, paper under review).
+-  **[PDF]** PDF to the scientific paper on the dataset: (Link to be updated, paper under review).
 
 -  To ensure the reproducibility of the results shown in this paper, we summarized the setup instructions, the link to pre-processed sample data, and the **code used to generate our results** in:
 
 	https://github.com/nesl/GDTM-tracking
 
--  A **demo video** of our baseline results is available at
+-  **[Video]** A **demo video** of our baseline results is available at
 
 	https://youtu.be/4EO5Z2IxO0o
 
@@ -149,7 +149,7 @@ Under each _dataN_ folder, there is a _metadata.json_ describing the metadata of
  - **Node pose**: for each node, there is a (1) $3\times1$ translation **$T_i$** vector describing the location of the node in the OptiTrack global coordinates (2) $9\times1$  vector (to be reshaped into a $3\times3$   rotation matrix **$R_i$** . **$R_i$** rotates a point in the global coordinate to a point in that node's local coordiante.
    - Node pose usage: Say we have an RC car's location at $p = [x, y, z]^T$ (in OptiTrack coordinate system). Then it's coordinate in node 1's local coordinate system is $p_{local} = R_1 (p - T_1)$.
  - **Car calibration**: for each car, there is a $3 \times 3$ rotation matrix that corrects the orientation of car from the quaternion in the raw data.
- - **Valid ranges**: sometimes the experiment data may contain unwanted sections. For example, car stuck at a fixed location, a car stopped due to out-of-battery, or at the end of each session when the nodes had stopped collection but the OptiTrack were stilling running. To clip out these sections, we provide valid range as a list of tuples where each tuple ($T_s$, $T_e$) indicates the timestamp of the beginning and the end of *a meaningful section* in the data.
+ - **Valid ranges**: sometimes the experiment data may contain unwanted sections. For example, car stuck at a fixed location, a car stopped due to out-of-battery, or at the end of each session when the nodes had stopped collection but the OptiTrack were stilling running. To clip out these sections, we provide valid ranges as a list of tuples where each tuple ($T_s$, $T_e$) indicates the timestamp of the beginning and the end of *a meaningful section* in the data.
 
 We also aggreated all the .json files as overall metadata for this dataset. It is included in this repository.
 
