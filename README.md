@@ -196,7 +196,7 @@ To reduce the burden of our users, we aggreate each step into a few one-line scr
 
 <!-- ros -->
 
-Under the _gdtm_preprocess_ directory, run `bash build.sh` to build the Docker container. Run `bash run-dp.sh <data_directory>` to drop into a shell in the container with `<data_directory>` mounted at `./data`. Alternatively, run `bash cmd-run-dp.sh <data_directory> <command>` to execute a single command within the container.
+Under the _gdtm_preprocess/_ directory, run `bash build.sh` to build the Docker container. Run `bash run-dp.sh <data_directory>` to drop into a shell in the container with `<data_directory>` mounted at `./data`. Alternatively, run `bash cmd-run-dp.sh <data_directory> <command>` to execute a single command within the container.
 
 The Docker container is built and tested in Ubuntu 20.04.6 LTS on an x86-64 Intel NUC with an NVIDIA GeForce RTX 2060 graphics card and NVIDIA driver version 470.182.03 and CUDA version 11.4.
 
@@ -209,7 +209,7 @@ could not select device driver "" with capabilities: [[gpu]].
 
 We will refer to an experiment as raw data formatted in the hierarchy shown above as _dataN/_.
 
-To process a single experiment, move the experiment into a directory named _raw/_ and then run `cmd-run-dp.sh <data_directory> 'bash helper/convert.sh'`. For example, to process _dataN/_, we would place its contents in the following hierarchy: 
+To process a single experiment, move contents of the experiment into a directory named _raw/_ and then run `cmd-run-dp.sh <data_directory> 'bash helper/convert.sh'`. For example, to process _dataN/_, we would arrange its contents in the following hierarchy: 
 ```
 data/
 └── raw/
@@ -217,7 +217,7 @@ data/
 ```
 Then we would run `bash cmd-run-dp.sh data/ 'bash helper/convert.sh'`.
 
-The HDF5 files generated will be placed in a newly created _processed/_ directory. For each interval in the `valid_ranges` field of the metadata, a directory _chunk_N/_ will be created and will contain clipped HDF5 files containing only the data within the respective range. We will refer to each clipped set of HDF5 files as a dataset. A sample dataset after processing an experiment may be: 
+The HDF5 files generated will be placed in a newly created _processed/_ directory. For each interval in the `valid_ranges` field of the metadata, a directory _chunk_N/_ will be created and will contain clipped HDF5 files containing only the data within the respective range. We will refer to each clipped set of HDF5 files (_chunk_N/_) as a dataset. An example of the file structure after preprocessing an experiment is shown below: 
 ```
 data/
 ├── chunk_0/
@@ -259,7 +259,7 @@ data/
 
 ### Merging
 
-To merge multiple datasets into a single dataset, first move the datasets we want to merge under the same directory `<merge_directory>` and then run `bash cmd-run-dp.sh <merge_directory>`. The merged dataset will be at `<merged_directory>/merged`. For example, if we want to merge datasets `data_1_chunk_0` and `data_2_chunk_1`, we would arrange them in the following format: 
+To merge multiple datasets into a single dataset, first move the datasets we want to merge under the same directory `<merge_directory>` and then run `bash cmd-run-dp.sh <merge_directory> 'bash helper/merge.sh'`. The merged dataset will be at `<merged_directory>/merged`. For example, if we want to merge datasets `data_1_chunk_0` and `data_2_chunk_1`, we would arrange them in the following format: 
 ```
 merge_directory/
 ├── data_1_chunk_0/
@@ -273,7 +273,7 @@ merge_directory/
 └── data_2_chunk_1/
     └── ...
 ```
-The resulting data hierarchy will be 
+The resulting file structure will be 
 ```
 merge_directory/
 ├── data_1_chunk_0/
@@ -298,7 +298,7 @@ merge_directory/
 
 ### Rendering and Visualization (Optional)
 
-To visualize all of the data from a single node, run `bash cmd-run-dp.sh <data_directory> [node_id] [start_frame] [duration] [output_mp4]`. For example, `bash cmd-run-dp.sh <data_directory> 2 500 300 test.mp4` visualizes data from node 2 from frame 500 to frame 800 and saves it to `<data_directory>/processed/test.mp4`.
+To visualize all of the data from a single node, run `bash cmd-run-dp.sh <data_directory> 'bash helper/visualize-hdf5.sh [node_id] [start_frame] [duration] [output_mp4]'`. For example, `bash cmd-run-dp.sh <data_directory> 2 500 300 test.mp4` visualizes data from node 2 between frame 500 and 800 and saves it to `<data_directory>/processed/test.mp4`.
 
 ## How to Use Pre-processed GDTM
 
