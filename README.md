@@ -42,13 +42,13 @@ One of the critical sensing tasks in indoor environments is geospatial tracking,
 ### Data Collection and Statistics
 The experiments are conducted in an indoor setting on a race track that spans across an area of 3 m × 3.6 m. The race track is delineated with white tape on top of dark gray foam mats. Six OptiTrack cameras are set up around the room to collect ground truth. Three multimodal sensor nodes each containing a stereo vision camera, a LiDAR camera, a mmWave radar, and a microphone array are placed around the race track during each experiment. We drive remote-controlled cars on the racetrack in either a circular or a random pattern and collect synchronized multi-node multimodal sensor data to track the geospatial location of the remoted controlled (RC) cars.
 
-![The Experiment Site of GDTM](figures/exp-settings.jpg)
+![The Experiment Site of GDTM](figures/exp_settings.jpg)
 
 Main hardware includes NVIDIA Jetson Xavier NX, TI IRW1443 mmWave Radar, Intel RealSense LiDAR camera, Zed 2 Stereo Vision Camera, and Seeed Studio ReSpeaker Microphone Array.
 We created our custom tool for dataset collection using ROS, GStreamer, and individual sensor drivers from their manufacturers. Details available at:
 https://dl.acm.org/doi/10.1145/3560905.3567770
 
-![Senosr Nodes of GDTM](figures/sensor-nodes.jpg)
+![Senosr Nodes of GDTM](figures/sensor_nodes.jpg)
 
 The dataset covers three cases: one car, two cars, and one car in poor illumination conditions. One of the highlights of the GDTM (apart from being multi-node multimodal), is that the dataset covers varies sensor placement and orientations (i.e., viewpoints) under all three cases. GDTM thus helps resesarchers develop models that generalize to unseen sensor placements. Please refere to the paper for more details. A breakdown of GDTM is shown in the table below.
 
@@ -140,7 +140,7 @@ An OptiTrack motion capture system is used to capture the ground truth location 
 
 We will discuss the metadata format on the next page. The figure below is a visualziation of one frame/one node of GDTM.
 
-![Data Example](figures/node-data.jpg)
+![Data Example](figures/node_data.jpg)
 
 ### Dataset Metadata
 Under each _dataN_ folder, there is a _metadata.json_ describing the metadata of that experiment. The .json file contains the following fields:
@@ -246,7 +246,7 @@ python data_test.py
 ```
 
 The _data_test.py_ is very straightforward. The script first define a few pipelines to load data from each modality, and then configures the filepaths. The scripts then renders a video of the ground truth and the sensor data.
-![Rendered Video](figures/loaded-data.png)
+![Rendered Video](figures/loaded_data.png)
 
  In the end, the scripts enters a loop where we visit the dataset timestamp by timestamp. Inside each timestamp, the dataset is a dictionary containing these keys (modality, nodes):
 ```
