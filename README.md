@@ -9,9 +9,9 @@ Dataset Repository of NeurIPS 2023 Track on Datasets and Benchmarks Paper #207
 ### Abstract
 One of the critical sensing tasks in indoor environments is geospatial tracking, i.e., constantly detecting and locating objects moving across a scene. Successful development of multimodal sensor fusion tracking algorithms relies on large multimodal datasets where common modalities exist and are time-aligned, and such datasets are not readily available. Moreover, some existing datasets either employs a single centralized sensor node or a set of sensors whose positions and orientations are fixed. Models developed on such datasets have difficulties generalizing to different sensor placements To fill these gaps, we propose GDTM, a nine-hour dataset for multimodal object tracking with distributed multimodal sensors and reconfigurable sensor node placements. This GTDM dataset enables the exploration of several research problems, including creating multimodal sensor fusion architectures robust to adverse sensing conditions and creating distributed object tracking systems robust to sensor placement variances.
 
-### External Links
+### External Links 
 
--  **[Data]** We will be hosting the dataset on IEEE Dataport under a CC-BY-4.0 license for public access. The public dataset repository will be ready before cameraready. We hereby provide **a Google Drive link to part of the dataset available for the reviewers** before the terabyte full dataset is available online.
+-  **[Data]** We will be hosting the dataset on IEEE Dataport under a CC-BY-4.0 license for public access. The public dataset repository will be ready before cameraready, as it takes a lot of time to upload terabytes of data online. We hereby provide **a Google Drive link to part of the dataset available for the reviewers** before the terabyte full dataset is available online.
 
 	https://drive.google.com/drive/folders/1N0b8-o9iipR7m3sq7EnTHrk_fRR5eFug?usp=sharing
 
