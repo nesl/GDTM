@@ -1,0 +1,1 @@
+conda env create -f mcp-data-processing.yml

@@ -50,14 +50,14 @@ https://dl.acm.org/doi/10.1145/3560905.3567770
 
 ![Senosr Nodes of GDTM](figures/sensor_nodes.jpg)
 
-The dataset covers three cases: one car, two cars, and one car in poor illumination conditions. One of the highlights of the GDTM (apart from being multi-node multimodal), is that the dataset covers varies sensor placement and orientations (i.e., viewpoints) under all three cases. GDTM thus helps resesarchers develop models that generalize to unseen sensor placements. Please refere to the paper for more details. A breakdown of GDTM is shown in the table below.
+The dataset covers three cases: one car, two cars, and one car in poor illumination conditions. One of the highlights of the GDTM (apart from being multi-node multimodal), is that the dataset covers varies sensor placement and orientations (i.e., viewpoints) under all three cases. GDTM thus helps resesarchers develop models that generalize to unseen sensor placements. Please refer to the paper for more details. A breakdown of GDTM is shown in the table below.
 
 
 |                 | Good Lighting  Condition | Good Lighting  Condition | Good Lighting  Condition | Poor Lighting  Condition | Poor Lighting  Condition |
 |:---------------:|:------------------------:|:------------------------:|:------------------------:|:------------------------:|:------------------------:|
 |                 |          Red Car         |         Green Car        |         Two Cars         |          Red Car         |         Green Car        |
 | # of Viewpoints |            16            |            17            |             7            |             9            |             4            |
-|  Durations (ms) |            150           |            140           |            80            |            140           |            40            |
+|  Durations (minutes) |            150           |            140           |            80            |            140           |            40            |
 |    Size (GB)    |            220           |            220           |            120           |            195           |            55            |
 
 ### Data Hierachy
@@ -147,10 +147,11 @@ Under each _dataN_ folder, there is a _metadata.json_ describing the metadata of
 
  - **Experiment Conditions**: there binary numbers indicates if (1) a red car is present in this experiment, (2) a green car is present in this experiment, and (3) if the experiment is conducted in good light conditions.
  - **Node pose**: for each node, there is a (1) $3\times1$ translation **$T_i$** vector describing the location of the node in the OptiTrack global coordinates (2) $9\times1$  vector (to be reshaped into a $3\times3$   rotation matrix **$R_i$** . **$R_i$** rotates a point in the global coordinate to a point in that node's local coordiante.
- - Node pose usage: Say we have an RC car's location at $p = [x, y, z]^T$ (in OptiTrack coordinate system). Then it's coordinate in node 1's local coordinate system is $$ p_{local} = R_1 (p - T_1)$$
- - **Valid Range**: sometimes the experiment data may contain unwanted sections. For example, car stuck at a fixed location, a car stopped due to out-of-battery, or at the end of each session when the nodes had stopped collection but the OptiTrack were stilling running. To clip out these sections, we provide valid range as a list of tuples where each tuple ($T_s$,$T_e$) indicates the timestamp of the beginning and the end of *a meaningful section* in the data.
+   - Node pose usage: Say we have an RC car's location at $p = [x, y, z]^T$ (in OptiTrack coordinate system). Then it's coordinate in node 1's local coordinate system is $p_{local} = R_1 (p - T_1)$.
+ - **Car calibration**: for each car, there is a $3 \times 3$ rotation matrix that corrects the orientation of car from the quaternion in the raw data.
+ - **Valid ranges**: sometimes the experiment data may contain unwanted sections. For example, car stuck at a fixed location, a car stopped due to out-of-battery, or at the end of each session when the nodes had stopped collection but the OptiTrack were stilling running. To clip out these sections, we provide valid range as a list of tuples where each tuple ($T_s$, $T_e$) indicates the timestamp of the beginning and the end of *a meaningful section* in the data.
 
-We also aggreated all the .json files as a overall metadata for this dataset. It is included in this repository.
+We also aggreated all the .json files as overall metadata for this dataset. It is included in this repository.
 
 ## Pre-processing GDTM Dataset
 
@@ -193,11 +194,111 @@ To reduce the burden of our users, we aggreate each step into a few one-line scr
 ```
 ### Installation Instructions
 
+<!-- ros -->
+
+Under the _gdtm_preprocess_ directory, run `bash build.sh` to build the Docker container. Run `bash run-dp.sh <data_directory>` to drop into a shell in the container with `<data_directory>` mounted at `./data`. Alternatively, run `bash cmd-run-dp.sh <data_directory> <command>` to execute a single command within the container.
+
+The Docker container is built and tested in Ubuntu 20.04.6 LTS on an x86-64 Intel NUC with an NVIDIA GeForce RTX 2060 graphics card and NVIDIA driver version 470.182.03 and CUDA version 11.4.
+
+You may find [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker) useful if you encounter the error message
+```
+could not select device driver "" with capabilities: [[gpu]].
+```
+
 ### Raw Data -> HDF5 Files
+
+We will refer to an experiment as raw data formatted in the hierarchy shown above as _dataN/_.
+
+To process a single experiment, move the experiment into a directory named _raw/_ and then run `cmd-run-dp.sh <data_directory> 'bash helper/convert.sh'`. For example, to process _dataN/_, we would place its contents in the following hierarchy: 
+```
+data/
+└── raw/
+    └── contents of dataN/...
+```
+Then we would run `bash cmd-run-dp.sh data/ 'bash helper/convert.sh'`.
+
+The HDF5 files generated will be placed in a newly created _processed/_ directory. For each interval in the `valid_ranges` field of the metadata, a directory _chunk_N/_ will be created and will contain clipped HDF5 files containing only the data within the respective range. We will refer to each clipped set of HDF5 files as a dataset. A sample dataset after processing an experiment may be: 
+```
+data/
+├── chunk_0/
+│   ├── mocap.hdf5
+│   ├── node_1/
+│   │   ├── mmwave.hdf5
+│   │   ├── realsense.hdf5
+│   │   ├── respeaker.hdf5
+│   │   └── zed.hdf5
+│   ├── node_2/
+│   │   └── ...
+│   └── node_3/
+│       └── ...
+├── chunk_1/
+│   └── ...
+├── chunk_2/
+│   └── ...
+├── processed/
+│   ├── aligned.csv
+│   ├── mocap.hdf5
+│   ├── node_1/
+│   │   ├── mmwave.csv
+│   │   ├── mmwave.hdf5
+│   │   ├── realsense_depth.csv
+│   │   ├── realsense.hdf5
+│   │   ├── realsense_rgb.csv
+│   │   ├── respeaker.csv
+│   │   ├── respeaker.hdf5
+│   │   ├── zed.csv
+│   │   └── zed.hdf5
+│   ├── node_2/
+│   │   └── ...
+│   ├── node_3/
+│   │   └── ...
+│   └── optitrack.csv
+└── raw/
+    └── unchanged...
+```
 
 ### Merging
 
+To merge multiple datasets into a single dataset, first move the datasets we want to merge under the same directory `<merge_directory>` and then run `bash cmd-run-dp.sh <merge_directory>`. The merged dataset will be at `<merged_directory>/merged`. For example, if we want to merge datasets `data_1_chunk_0` and `data_2_chunk_1`, we would arrange them in the following format: 
+```
+merge_directory/
+├── data_1_chunk_0/
+│   ├── mocap.hdf5
+│   ├── node_1/
+│   │   └── ...
+│   ├── node_2/
+│   │   └── ...
+│   └── node_3/
+│       └── ...
+└── data_2_chunk_1/
+    └── ...
+```
+The resulting data hierarchy will be 
+```
+merge_directory/
+├── data_1_chunk_0/
+│   ├── mocap.hdf5
+│   ├── node_1/
+│   │   └── ...
+│   ├── node_2/
+│   │   └── ...
+│   └── node_3/
+│       └── ...
+├── data_2_chunk_1/
+│   └── ...
+└── merged/
+    ├── mocap.hdf5
+    ├── node_1/
+    │   └── ...
+    ├── node_2/
+    │   └── ...
+    └── node_3/
+        └── ...
+```
+
 ### Rendering and Visualization (Optional)
+
+To visualize all of the data from a single node, run `bash cmd-run-dp.sh <data_directory> [node_id] [start_frame] [duration] [output_mp4]`. For example, `bash cmd-run-dp.sh <data_directory> 2 500 300 test.mp4` visualizes data from node 2 from frame 500 to frame 800 and saves it to `<data_directory>/processed/test.mp4`.
 
 ## How to Use Pre-processed GDTM
 
@@ -278,4 +379,3 @@ If you find this project useful in your research, please consider cite:
     year={2023}
 }
 ```
-
