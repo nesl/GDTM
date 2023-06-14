@@ -42,13 +42,13 @@ One of the critical sensing tasks in indoor environments is geospatial tracking,
 ### Data Collection and Statistics
 The experiments are conducted in an indoor setting on a race track that spans across an area of 3 m × 3.6 m. The race track is delineated with white tape on top of dark gray foam mats. Six OptiTrack cameras are set up around the room to collect ground truth. Three multimodal sensor nodes each containing a stereo vision camera, a LiDAR camera, a mmWave radar, and a microphone array are placed around the race track during each experiment. We drive remote-controlled cars on the racetrack in either a circular or a random pattern and collect synchronized multi-node multimodal sensor data to track the geospatial location of the remoted controlled (RC) cars.
 
-![The Experiment Site of GDTM](https://ibb.co/TPt9NYm)
+![The Experiment Site of GDTM](https://i.ibb.co/BBdyk8d/exp-settings.jpg)
 
 Main hardware includes NVIDIA Jetson Xavier NX, TI IRW1443 mmWave Radar, Intel RealSense LiDAR camera, Zed 2 Stereo Vision Camera, and Seeed Studio ReSpeaker Microphone Array.
 We created our custom tool for dataset collection using ROS, GStreamer, and individual sensor drivers from their manufacturers. Details available at:
 https://dl.acm.org/doi/10.1145/3560905.3567770
 
-![Senosr Nodes of GDTM](https://ibb.co/Hq1tZm1)
+![Senosr Nodes of GDTM](https://i.ibb.co/1RTF478/sensor-nodes.jpg)
 
 The dataset covers three cases: one car, two cars, and one car in poor illumination conditions. One of the highlights of the GDTM (apart from being multi-node multimodal), is that the dataset covers varies sensor placement and orientations (i.e., viewpoints) under all three cases. GDTM thus helps resesarchers develop models that generalize to unseen sensor placements. Please refere to the paper for more details. A breakdown of GDTM is shown in the table below.
 
@@ -89,19 +89,108 @@ The data set is origanized by firstly the experiment settings, then viewpoints. 
 ```
 Here each _dataN/_ folder indicates one experiment session, which lasts typically 5-15 minutes.
 
+Inside _dataN/_ folder lay the data of that session, the hierachy is shown below
+```
+─── dataN/
+    ├── node1/
+    │   └── ...
+    ├── node2/
+    │   └── ...
+    ├── node3/
+    │   ├── IoBT_Node_13_gps_DATE_TIME.bag  # GPS info, not useful indoors
+    │   ├── IoBT_Node_13_status_DATE_TIME.bag  # node health logs
+    │   ├── IoBT_Node_13_DATE_TIME.bag  # Ouster LiDAR scans, we provide them in our raw datasets but have not used them in our paper
+    │   ├── IoBT_Node_13_mmwave_DATE_TIME.bag
+    │   ├── IoBT_Node_13_realsense_DATE_TIME.bag
+    │   ├── IoBT_Node_13_realsense_depth_DATE_TIME.mp4
+    │   ├── IoBT_Node_13_realsense_rgb_DATE_TIME.mp4
+    │   ├── IoBT_Node_13_respeaker_DATE_TIME.bag
+    │   ├── IoBT_Node_13_zed_DATE_TIME.bag
+    │   └── IoBT_Node_13_zed_DATE_TIME.svo
+    ├── optitrack.csv
+    └── metadata.json  # to be explained in the next subsection
+```
+Here are the details of these files:
 
+**LiDAR Camera** 
+
+ - IoBT_Node_13_realsense_DATE_TIME.bag (Timestamps and Configurations)
+ - IoBT_Node_13_realsense_depth_DATE_TIME.mp4 (Depth Stream)
+ - IoBT_Node_13_realsense_rgb_DATE_TIME.mp4 (Camera Stream)
+
+Intel RealSense L515 LiDAR cameras and Intel RealSense SDK are used to collect RGB and depth data. RGB frames are captured at 15 Hz with $1920 \times 1080$ resolution. Depth frames are streamed at 15 Hz with $640 \times 480$ resolution and a custom colormap. Both are stored in H264 encoding. Some vertical dark strips may be found in the LiDAR camera depth frames due to the infrared interference from the OptiTrack system. 
+
+**Stereo Vision Camera**
+
+ - IoBT_Node_13_zed_DATE_TIME.bag (Timestamps and Configurations)
+ - IoBT_Node_13_zed_DATE_TIME.svo (Left/Right Camera and Computed Depth)
+
+StereoLabs ZED 2i depth cameras and StereoLabs ZED SDK are used to provide supplmentary RGB and depth information. Both RGB and depth frames are captured at 15 Hz with $1920 \times 1080$ resolution. Both are stored in the proprietary [SVO format](https://support.stereolabs.com/hc/en-us/articles/360009986754-How-do-I-convert-SVO-files-to-AVI-or-image-depth-sequences-) and can be extracted with ZED SDK. A limitation of ZED cameras is that since depth is generated from RGB frames via stereo vision, they provide little utility in low-light conditions.
+
+**mmWave Radar** (IoBT_Node_13_mmwave_DATE_TIME.bag)
+
+TI mmWave IWR1443 radars are used to record radio frequency information. Range azimuth heatmap, range doppler heatmap, range profile, noise profile, and point cloud are recorded at 4 Hz and stored directly in the ROS bags. The configuration file is also stored in the ROS bags along with the data, as it is required to map the data to physical coordinates correctly.
+
+**ReSpeaker** (IoBT_Node_13_respeaker_DATE_TIME.bag)
+
+ReSpeaker microphone arrays are used to record audio data. ReSpeaker features 4 microphones placed $90^\circ$ from each other for direction of arrival (DOA) detection. The 6 audio channels ReSpeaker (raw data from the 4 microphones, merged playback, and processed audio for automatic speech recognition (ASR)) are encoded in FLAC format, converted to byte strings, and stored in ROS bags. The DOA is sampled at 15 Hz and also stored in the ROS bags.
+
+**OptiTrack** (optitrack.csv)
+An OptiTrack motion capture system is used to capture the ground truth location and orientations of the tracking subjects and the sensor nodes. It works by using a set if six infrared cameras to track reflective balls mounted on the target objects. In the .csv file, each entry is a timestamp (sampled at 120Hz), and seven numbers are used to represent the pose of one object: 3 numbers for position (x,y,z), and 4 number as a quaternion (w,x,y,z) for orientation.
+
+We will discuss the metadata format on the next page. The figure below is a visualziation of one frame/one node of GDTM.
+
+![Data Example](https://i.ibb.co/JRr24x2/node-data.jpg)
 
 ### Dataset Metadata
+Under each _dataN_ folder, there is a _metadata.json_ describing the metadata of that experiment. The .json file contains the following fields:
+
+ - **Experiment Conditions**: there binary numbers indicates if (1) a red car is present in this experiment, (2) a green car is present in this experiment, and (3) if the experiment is conducted in good light conditions.
+ - **Node pose**: for each node, there is a (1) $3\times1$ translation **$T_i$** vector describing the location of the node in the OptiTrack global coordinates (2) $9\times1$  vector (to be reshaped into a $3\times3$   rotation matrix **$R_i$** . **$R_i$** rotates a point in the global coordinate to a point in that node's local coordiante.
+ - Node pose usage: Say we have an RC car's location at $p = [x, y, z]^T$ (in OptiTrack coordinate system). Then it's coordinate in node 1's local coordinate system is $$ p_{local} = R_1 (p - T_1)$$
+ - **Valid Range**: sometimes the experiment data may contain unwanted sections. For example, car stuck at a fixed location, a car stopped due to out-of-battery, or at the end of each session when the nodes had stopped collection but the OptiTrack were stilling running. To clip out these sections, we provide valid range as a list of tuples where each tuple ($T_s$,$T_e$) indicates the timestamp of the beginning and the end of *a meaningful section* in the data.
+
+We also aggreated all the .json files as a overall metadata for this dataset. It is included in this repository.
 
 ## Pre-processing GDTM Dataset
 
 
-
 ### Overview
 
+In this section, we discuss how to pre-process the dataset by doing proper alignment, imputation, and merging. From a high level. the pre-processing consists of the following steps:
+
+ - (1) Pick the experiment data you would like to process.
+ - (2) Align and impute each individual data folder based on timestamps. This steps converts the dataset into a few time-aligned HDF5 files sampled at 15Hz.
+ - (3) Merge the different experiment data to form train/val/test sets.
+ - (4) Optionally, visualize the data
+
+To reduce the burden of our users, we aggreate each step into a few one-line scripts. The users just need to run our bash scripts following the instructions below to pre-process GDTM.
 
 #### Expected Dataset Structure after Pre-processing
-
+```
+─── mcp-sample-dataset/
+    ├── train/
+    │   └── ...
+    ├── val/
+    │   └── ...
+    └── test/
+        ├── node1/
+        │   ├── realsense.hdf5
+        │   ├── mmwave.hdf5
+        │   ├── zed.hdf5
+        │   └── respeaker.hdf5
+        ├── node2/
+        │   ├── realsense.hdf5
+        │   ├── mmwave.hdf5
+        │   ├── zed.hdf5
+        │   └── respeaker.hdf5
+        ├── node3/
+        │   ├── realsense.hdf5
+        │   ├── mmwave.hdf5
+        │   ├── zed.hdf5
+        │   └── respeaker.hdf5
+        └── mocap.hdf5
+```
 ### Installation Instructions
 
 ### Raw Data -> HDF5 Files
@@ -156,7 +245,10 @@ Finally we need to run the _data_test.py_:
 python data_test.py
 ```
 
-The _data_test.py_ is very straightforward. The script first define a few pipelines to load data from each modality, and then configures the filepaths. The scripts then renders a video of the ground truth and the sensor data. In the end, the scripts enters a loop where we visit the dataset timestamp by timestamp. Inside each timestamp, the dataset is a dictionary containing these keys (modality, nodes):
+The _data_test.py_ is very straightforward. The script first define a few pipelines to load data from each modality, and then configures the filepaths. The scripts then renders a video of the ground truth and the sensor data.
+![Rendered Video](https://i.ibb.co/ZSKZ7tq/loaded-data.png)
+
+ In the end, the scripts enters a loop where we visit the dataset timestamp by timestamp. Inside each timestamp, the dataset is a dictionary containing these keys (modality, nodes):
 ```
 [('mocap', 'mocap'), ('azimuth_static', 'node_1'), ('range_doppler', 'node_1'), ('realsense_camera_depth', 'node_1'), ('realsense_camera_img', 'node_1'), ('mic_waveform', 'node_1'), ('zed_camera_depth', 'node_1'), ('zed_camera_left', 'node_1'), ('azimuth_static', 'node_2'), ('range_doppler', 'node_2'), ('realsense_camera_depth', 'node_2'), ('realsense_camera_img', 'node_2'), ('mic_waveform', 'node_2'), ('zed_camera_depth', 'node_2'), ('zed_camera_left', 'node_2'), ('azimuth_static', 'node_3'), ('range_doppler', 'node_3'), ('realsense_camera_depth', 'node_3'), ('realsense_camera_img', 'node_3'), ('mic_waveform', 'node_3'), ('zed_camera_depth', 'node_3'), ('zed_camera_left', 'node_3')]
 ```
