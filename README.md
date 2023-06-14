@@ -11,27 +11,27 @@ One of the critical sensing tasks in indoor environments is geospatial tracking,
 
 ### External Links
 
-We will be hosting the dataset on IEEE Dataport under a CC-BY-4.0 license for public access. The public dataset repository will be ready before cameraready. We hereby provide **a Google Drive link to part of the dataset available for the reviewers** before the terabyte full dataset is available online.
+-  We will be hosting the dataset on IEEE Dataport under a CC-BY-4.0 license for public access. The public dataset repository will be ready before cameraready. We hereby provide **a Google Drive link to part of the dataset available for the reviewers** before the terabyte full dataset is available online.
 
-https://drive.google.com/drive/folders/1N0b8-o9iipR7m3sq7EnTHrk_fRR5eFug?usp=sharing
+	https://drive.google.com/drive/folders/1N0b8-o9iipR7m3sq7EnTHrk_fRR5eFug?usp=sharing
 
-We provide the dataset documentation and intended uses using the **dataset nutrition labels** framework in the following link:
+-  We provide the dataset documentation and intended uses using the **dataset nutrition labels** framework in the following link:
 
-https://datanutrition.org/labels/v3/?id=0c819282-b39c-451f-aa8c-f2044bfacf21
+	https://datanutrition.org/labels/v3/?id=0c819282-b39c-451f-aa8c-f2044bfacf21
 
-PDF to the scientific paper on the dataset: (Link to be updated, paper under review).
+-  PDF to the scientific paper on the dataset: (Link to be updated, paper under review).
 
-To ensure the reproducibility of the results shown in this paper, we summarized the setup instructions, the link to pre-processed sample data, and the **code used to generate our results** in:
+-  To ensure the reproducibility of the results shown in this paper, we summarized the setup instructions, the link to pre-processed sample data, and the **code used to generate our results** in:
 
-https://github.com/nesl/GDTM-tracking
+	https://github.com/nesl/GDTM-tracking
 
-A **demo video** of our baseline results is available at
+-  A **demo video** of our baseline results is available at
 
-https://youtu.be/4EO5Z2IxO0o
+	https://youtu.be/4EO5Z2IxO0o
 
 
 ### Internal Links
-[Further Information on the Raw Dataset](#"Raw-Dataset")
+[Further Information on the Raw Dataset](#Raw-Dataset)
 
 [How to Pre-process GDTM Dataset](#Pre-processing-GDTM-Dataset)
 
@@ -40,8 +40,56 @@ https://youtu.be/4EO5Z2IxO0o
 ## Raw Dataset
 
 ### Data Collection and Statistics
+The experiments are conducted in an indoor setting on a race track that spans across an area of 3 m × 3.6 m. The race track is delineated with white tape on top of dark gray foam mats. Six OptiTrack cameras are set up around the room to collect ground truth. Three multimodal sensor nodes each containing a stereo vision camera, a LiDAR camera, a mmWave radar, and a microphone array are placed around the race track during each experiment. We drive remote-controlled cars on the racetrack in either a circular or a random pattern and collect synchronized multi-node multimodal sensor data to track the geospatial location of the remoted controlled (RC) cars.
+
+![The Experiment Site of GDTM](https://ibb.co/TPt9NYm)
+
+Main hardware includes NVIDIA Jetson Xavier NX, TI IRW1443 mmWave Radar, Intel RealSense LiDAR camera, Zed 2 Stereo Vision Camera, and Seeed Studio ReSpeaker Microphone Array.
+We created our custom tool for dataset collection using ROS, GStreamer, and individual sensor drivers from their manufacturers. Details available at:
+https://dl.acm.org/doi/10.1145/3560905.3567770
+
+![Senosr Nodes of GDTM](https://ibb.co/Hq1tZm1)
+
+The dataset covers three cases: one car, two cars, and one car in poor illumination conditions. One of the highlights of the GDTM (apart from being multi-node multimodal), is that the dataset covers varies sensor placement and orientations (i.e., viewpoints) under all three cases. GDTM thus helps resesarchers develop models that generalize to unseen sensor placements. Please refere to the paper for more details. A breakdown of GDTM is shown in the table below.
+
+
+|                 | Good Lighting  Condition | Good Lighting  Condition | Good Lighting  Condition | Poor Lighting  Condition | Poor Lighting  Condition |
+|:---------------:|:------------------------:|:------------------------:|:------------------------:|:------------------------:|:------------------------:|
+|                 |          Red Car         |         Green Car        |         Two Cars         |          Red Car         |         Green Car        |
+| # of Viewpoints |            16            |            17            |             7            |             9            |             4            |
+|  Durations (ms) |            150           |            140           |            80            |            140           |            40            |
+|    Size (GB)    |            220           |            220           |            120           |            195           |            55            |
 
 ### Data Hierachy
+
+The data set is origanized by firstly the experiment settings, then viewpoints. The top hierachies are shown below
+```
+─── GDTM/
+    ├── One Car
+    │   ├── View 1
+    │   │   ├── data 1
+    │   │   └── data 2
+    │   ├── View 2
+    │   │   ├── data 3
+    │   │   ├── data 4
+    │   │   └── data 5
+    │   └── ...
+    ├── Two Cars
+    │   ├── View 1
+    │   │   ├── data 40
+    │   │   └── data 41
+    │   ├── View 2
+    │   └── ...
+    └── Low Light
+        ├── View 1
+        │   ├── data 100
+        │   └── data 101
+        ├── View 3
+        └── ...
+```
+Here each _dataN/_ folder indicates one experiment session, which lasts typically 5-15 minutes.
+
+
 
 ### Dataset Metadata
 
@@ -64,7 +112,7 @@ https://youtu.be/4EO5Z2IxO0o
 
 ## How to Use Pre-processed GDTM
 
-In this section, we showcase how the proGDTM dataset can be loaded and used. The sample dataset loading script is based on [mmtracking](https://mmtracking.readthedocs.io/en/latest/install.html) library developed by OpenMMLab.  However, you can use any libraries for downstream processing as the dataset has been read into dictionaries and numpy arrays.
+In this section, we showcase how the pre-processed GDTM dataset can be loaded and used. The sample dataset loading script is based on [mmtracking](https://mmtracking.readthedocs.io/en/latest/install.html) library developed by OpenMMLab.  However, you can use any libraries for downstream processing as the dataset has been read into dictionaries and numpy arrays.
 
 ### Installation
 Firstly, open a terminal and create a conda vertual environment using python 3.9:
