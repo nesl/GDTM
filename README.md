@@ -1,7 +1,7 @@
 
 
 # GTDM
-Dataset Repository of NeurIPS 2023 Track on Datasets and Benchmarks Paper #207
+Dataset Repository of GDTM: An Indoor Geospatial Tracking Dataset with Distributed Multimodal Sensors
 
 ## Overview
 
@@ -11,7 +11,7 @@ One of the critical sensing tasks in indoor environments is geospatial tracking,
 
 ### External Links 
 
--  **[Data]** We will be hosting the dataset on IEEE Dataport under a CC-BY-4.0 license for public access. The public dataset repository will be ready before cameraready, as it takes a lot of time to upload terabytes of data online. We hereby provide **a Google Drive link to part of the dataset available for the reviewers** before the terabyte full dataset is available online.
+-  **[Data]** We will be hosting the dataset on IEEE Dataport under a CC-BY-4.0 license for public access in the long term. We hereby provide **a Google Drive link to the dataset** before the long-term-support dataset repository is available online.
 
 	https://drive.google.com/drive/folders/1N0b8-o9iipR7m3sq7EnTHrk_fRR5eFug?usp=sharing
 
@@ -56,9 +56,9 @@ The dataset covers three cases: one car, two cars, and one car in poor illuminat
 |                 | Good Lighting  Condition | Good Lighting  Condition | Good Lighting  Condition | Poor Lighting  Condition | Poor Lighting  Condition |
 |:---------------:|:------------------------:|:------------------------:|:------------------------:|:------------------------:|:------------------------:|
 |                 |          Red Car         |         Green Car        |         Two Cars         |          Red Car         |         Green Car        |
-| # of Viewpoints |            16            |            17            |             7            |             9            |             4            |
-|  Durations (minutes) |            150           |            140           |            80            |            140           |            40            |
-|    Size (GB)    |            220           |            220           |            120           |            195           |            55            |
+| # of Viewpoints |            18            |            15            |             6           |             7            |             2            |
+|  Durations (minutes) |            200           |            165           |            95            |            145           |            35           |
+|    Size (GB)    |            278           |            235           |            134           |            202           |            45            |
 
 ### Data Hierachy
 
@@ -87,7 +87,7 @@ The data set is origanized by firstly the experiment settings, then viewpoints. 
         ├── View 3
         └── ...
 ```
-Here each _dataN/_ folder indicates one experiment session, which lasts typically 5-15 minutes.
+Here each _dataN/_ folder indicates one experiment session, which lasts typically 5-15 minutes. Please refer to ./USING_GDTM/dataset_metadata_final.csv for metadata information such as sensor placement viewpoints, lighting conditions, and tracking targets.
 
 Inside _dataN/_ folder lay the data of that session, the hierachy is shown below
 ```
@@ -192,15 +192,43 @@ To reduce the burden of our users, we aggreate each step into a few one-line scr
         │   └── respeaker.hdf5
         └── mocap.hdf5
 ```
-### Installation Instructions
+### Installation Instructions (Build the container)
 
-<!-- ros -->
+The data-processing requires building our docker image. To install docker, please refer to the"Install using the apt repository" section in https://docs.docker.com/engine/install/ubuntu/.
 
-Under the _gdtm_preprocess/_ directory, run `bash build.sh` to build the Docker container. Run `bash run-dp.sh <data_directory>` to drop into a shell in the container with `<data_directory>` mounted at `./data`. Alternatively, run `bash cmd-run-dp.sh <data_directory> <command>` to execute a single command within the container.
+Under the _gdtm_preprocess/_ directory, modify ```build.sh```,```cmd-run-dp.sh```, ```run-dp.sh```, change the first three lines to: 
+
+```
+export MCP_USER=$USER
+export MCP_HOME=YOUR_PATH_TO_GDTM
+export MCP_ROOT=${MCP_HOME}/gdtm_preprocess
+```
+
+Then, still under the _gdtm_preprocess/_ directory, run 
+```
+bash build.sh
+```
+to build the Docker container. 
+
+If "permission denied" appears, try:
+
+(1) Create the docker group.
+```
+sudo groupadd docker
+```
+It's OKay if group 'docker' already exists.
+
+(2) Add your user to the docker group.
+```
+sudo usermod -aG docker $USER
+```
+A reboot may be necessary.
+
+**Basic usage of our docker container**:[Note: for your information only. You don't need to run this paragraph to pre-process the data.] Run `bash run-dp.sh <data_directory>` to drop into a shell in the container with `<data_directory>` mounted at `./data`. Alternatively, run `bash cmd-run-dp.sh <data_directory> <command>` to execute a single command within the container.
 
 The Docker container is built and tested in Ubuntu 20.04.6 LTS on an x86-64 Intel NUC with an NVIDIA GeForce RTX 2060 graphics card and NVIDIA driver version 470.182.03 and CUDA version 11.4.
 
-You may find [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker) useful if you encounter the error message
+You may find the "Installing with Apt" and "Configuring Docker" sections in [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker) useful if you encounter the error message
 ```
 could not select device driver "" with capabilities: [[gpu]].
 ```
@@ -209,13 +237,17 @@ could not select device driver "" with capabilities: [[gpu]].
 
 We will refer to an experiment as raw data formatted in the hierarchy shown above as _dataN/_.
 
-To process a single experiment, move contents of the experiment into a directory named _raw/_ and then run `cmd-run-dp.sh <data_directory> 'bash helper/convert.sh'`. For example, to process _dataN/_, we would arrange its contents in the following hierarchy: 
+To process a single experiment, move contents of the experiment into a directory named _<data_directory>/raw/_. <data_directory> can use any name and be placed at any place, but must be a full and abolute path. For example, to process _dataN/_, we would arrange its contents in the following hierarchy: 
 ```
-data/
+<data_directory>
 └── raw/
-    └── contents of dataN/...
+    └── contents of dataN/... (folders node1/2/3, metadata.json, optitrack.csv)
 ```
-Then we would run `bash cmd-run-dp.sh data/ 'bash helper/convert.sh'`.
+Then we would run 
+```
+bash cmd-run-dp.sh <data_directory> 'bash helper/convert.sh'
+```
+
 
 The HDF5 files generated will be placed in a newly created _processed/_ directory. For each interval in the `valid_ranges` field of the metadata, a directory _chunk_N/_ will be created and will contain clipped HDF5 files containing only the data within the respective range. We will refer to each clipped set of HDF5 files (_chunk_N/_) as a dataset. An example of the file structure after preprocessing an experiment is shown below: 
 ```
@@ -257,9 +289,15 @@ data/
     └── unchanged...
 ```
 
+You can use ```sudo chown -R $USER <data_repository>``` to obtain the ownership of the files so you can move or delete the data easily. 
+
 ### Merging
 
-To merge multiple datasets into a single dataset, first move the datasets we want to merge under the same directory `<merge_directory>` and then run `bash cmd-run-dp.sh <merge_directory> 'bash helper/merge.sh'`. The merged dataset will be at `<merged_directory>/merged`. For example, if we want to merge datasets `data_1_chunk_0` and `data_2_chunk_1`, we would arrange them in the following format: 
+To merge multiple datasets into a single dataset, first move the datasets we want to merge under the same directory `<merge_directory>` and then run 
+```
+bash cmd-run-dp.sh <merge_directory> 'bash helper/merge.sh $(ls data | grep chunk)'
+```
+The merged dataset will be at `<merged_directory>/merged`. For example, if we want to merge datasets `data_1_chunk_0` and `data_2_chunk_1`, we would arrange them in the following format: 
 ```
 merge_directory/
 ├── data_1_chunk_0/
@@ -298,7 +336,7 @@ merge_directory/
 
 ### Rendering and Visualization (Optional)
 
-To visualize all of the data from a single node, run `bash cmd-run-dp.sh <data_directory> 'bash helper/visualize-hdf5.sh [node_id] [start_frame] [duration] [output_mp4]'`. For example, `bash cmd-run-dp.sh <data_directory> 2 500 300 test.mp4` visualizes data from node 2 between frame 500 and 800 and saves it to `<data_directory>/processed/test.mp4`.
+To visualize all of the data from a single node, run `bash cmd-run-dp.sh <data_directory> 'bash helper/visualize-hdf5.sh [node_id] [start_frame] [duration] [output_mp4]'`. For example, `bash cmd-run-dp.sh <data_directory> 'bash helper/visualize-hdf5.sh 2 500 300 test.mp4'` visualizes data from node 2 between frame 500 and 800 and saves it to `<data_directory>/processed/test.mp4`.
 
 ## How to Use Pre-processed GDTM
 
@@ -364,6 +402,8 @@ rm -r /dev/shm/cache_*
 ```
 to clear any pre-loaded data in the memory.
 
+**Visualize Viewpoints**: In order to develop models robust to sensor placement location/perspective changes, uses may want to select data coming from different sensor viewpoints. Apart from dataset_metadata_final.csv, we also provide a tool, viewpoint_plot.py to visualize a few selected data entries
+
 ### See Also
 For further usage such as how to train a multimodal sensor fusion models, we provide examples in https://github.com/nesl/GDTM-Tracking
 
@@ -375,7 +415,8 @@ If you find this project useful in your research, please consider cite:
 @inproceedings{wang2023gdtm,
     title={GTDM: An Indoor Geospatial Tracking Dataset with Distributed Multimodal Sensors},
     author={Jeong, Ho Lyun and Wang, Ziqi and Samplawski, Colin and Wu, Jason and Fang, Shiwei and Kaplan, Lance and Ganesan, Deepak and Marlin, Benjamin and Srivastava, Mani},
-    booktitle={submission to the Thirty-seventh Annual Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
-    year={2023}
+    year={2024}
 }
 ```
+
+

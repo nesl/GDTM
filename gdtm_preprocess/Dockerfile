@@ -9,7 +9,7 @@ RUN apt-key del "7fa2af80" \
 
 
 
-ARG DEBIAN_FRONTEND="noninteractive" 
+ARG DEBIAN_FRONTEND="noninteractive"
 ENV TZ="America/New_York"
 
 
@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends make g++ cmake 
 
 
 #Install opencv library
-RUN apt-get install -y libopencv-dev 
+RUN apt-get install -y libopencv-dev
 
 # WORKDIR /workspace
 
@@ -68,7 +68,7 @@ ENV MCP_ROOT=$MCP_ROOT
 ENV MCP_APP_DIR=$MCP_APP_DIR
 
 #Create the MCP user
-RUN groupadd ${MCP_USER} && useradd --create-home --shell /bin/bash -g ${MCP_USER} -G sudo,audio,dip,video,plugdev,dialout ${MCP_USER}   
+RUN groupadd ${MCP_USER} && useradd --create-home --shell /bin/bash -g ${MCP_USER} -G sudo,audio,dip,video,plugdev,dialout ${MCP_USER}
 
 RUN add-apt-repository universe && \
     apt update && apt-get install -y ffmpeg python3 python-dev python3-dev build-essential python3-pip
@@ -80,7 +80,7 @@ RUN pip3 install ipdb
 RUN pip3 install h5py
 # RUN pip install wheel
 # RUN pip install pyaudio
-
+RUN pip3 install psutil==5.9.8
 ## Ouster LIDAR related
 RUN python3 -m pip install --upgrade pip
 RUN python3 -m pip install 'ouster-sdk[examples]'
@@ -93,7 +93,7 @@ RUN cd $MCP_APP_DIR/data_processing/ros_pkgs   && \
     catkin_make &&\
     catkin_make install && \
     echo "source $MCP_APP_DIR/data_processing/ros_pkgs/devel/setup.bash" >> ~/.bashrc
-    
+
 RUN echo "source $MCP_APP_DIR/data_processing/ros_pkgs/devel/setup.bash"
 
 RUN mkdir -p $MCP_APP_DIR/data_processing/data
