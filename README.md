@@ -19,7 +19,8 @@ One of the critical sensing tasks in indoor environments is geospatial tracking,
 
 	https://datanutrition.org/labels/v3/?id=0c819282-b39c-451f-aa8c-f2044bfacf21
 
--  **[PDF]** PDF to the scientific paper on the dataset: (Link to be updated, paper under review).
+-  **[PDF]** PDF to the scientific paper on the dataset: 
+        https://arxiv.org/abs/2402.14136
 
 -  To ensure the reproducibility of the results shown in this paper, we summarized the setup instructions, the link to pre-processed sample data, and the **code used to generate our results** in:
 
